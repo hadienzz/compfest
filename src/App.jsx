@@ -14,7 +14,7 @@ const App = () => {
     { path: '/subscription', element: <SubscriptionPage /> },
     { path: '/contact', element: <ContactPage /> },
     { path: '/signup', element: <SignUpPage /> },
-    {path: '/signin', element: <SignInPage />}
+    { path: '/signin', element: <SignInPage /> }
   ])
 
   return (

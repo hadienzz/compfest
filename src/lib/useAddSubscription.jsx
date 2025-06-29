@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query"
 import axios from "axios"
-import { useFormik } from "formik"
 
 const useAddSubscription = () => {
+    const token = localStorage.getItem('token')
+
     const { mutate } = useMutation({
         mutationFn: async (body) => {
             const { name, phone, price, mealTypes, deliveryDays, allergies } = body.submissionData
@@ -16,7 +17,11 @@ const useAddSubscription = () => {
                 allergies
             }
 
-            const result = await axios.post('http://localhost:3000/subscription', subscriptionData)
+            const result = await axios.post('http://localhost:3000/subscription', subscriptionData, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             return result.data
         },
         mutationKey: ['subscription']

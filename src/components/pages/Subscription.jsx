@@ -184,7 +184,6 @@ export default function SubscriptionPage() {
     const getSelectedPlan = () => {
         return planOptions.find((plan) => plan.id === formData.plan)
     }
-
     return (
         <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
             <Navigation />

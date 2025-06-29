@@ -59,6 +59,9 @@ export const useSignIn = () => {
                 return
             }
 
+
+            localStorage.setItem('token', data.session.access_token)
+
             navigate('/')
             return data
         }
