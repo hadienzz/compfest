@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 import {
     Utensils,
     DollarSign,
@@ -12,35 +13,28 @@ import {
     Play,
     Pause,
     X,
-    Settings,
     Bell,
     User,
     BarChart3,
     PieChart,
     Activity,
-    Clock,
     CheckCircle,
     AlertCircle,
 } from "lucide-react"
 
 import useGetSubscriptionData from "@/lib/useGetSubscriptionData"
 import useFormatPrice from "@/lib/useFormatPrice"
+import useGetDataUser from "@/lib/useGetDataUser"
+import useDeleteSubscription from "@/lib/useDeleteSubscription"
+import { useNavigate } from "react-router-dom"
+import { Input } from "../ui/input"
 
 export default function DashboardPage() {
-    const [userType, setUserType] = useState("user") // "user" or "admin"
+    const token = localStorage.getItem('token')
+    const navigate = useNavigate()
+    const [userType, setUserType] = useState("user")
     const [dateRange, setDateRange] = useState("30")
-    const { subscriptionLength, loadingData, totalRevenue } = useGetSubscriptionData()
-
-
-    // Mock data
-    const userSubscription = {
-        plan: "Protein Plan",
-        status: "Active",
-        nextDelivery: "2024-01-15",
-        mealsPerWeek: 14,
-        price: "Rp 560,000",
-        startDate: "2023-12-01",
-    }
+    const { totalRevenue, dataLength, newSubscription } = useGetSubscriptionData()
 
     const adminMetrics = {
         newSubscriptions: 45,
@@ -51,134 +45,241 @@ export default function DashboardPage() {
         churnRate: 3.2,
     }
 
-    const UserDashboard = () => (
-        <div className="space-y-6">
-            {/* Welcome Section */}
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
-                <h1 className="text-2xl font-bold mb-2">Hello!</h1>
-                <p className="opacity-90">Manage your healthy meal subscription</p>
-            </div>
+    if (!token) {
+        navigate('/signin')
+    }
 
-            {/* Active Subscription Card */}
-            <Card className="border-0 shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Utensils className="h-5 w-5 text-emerald-600" />
-                        Active Subscription
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                            <div>
-                                <Label className="text-sm text-slate-600">Current Plan</Label>
-                                <p className="font-semibold text-lg">{userSubscription.plan}</p>
-                            </div>
-                            <div>
-                                <Label className="text-sm text-slate-600">Status</Label>
-                                <div className="flex items-center gap-2">
-                                    <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-                                        <CheckCircle className="h-3 w-3 mr-1" />
-                                        {userSubscription.status}
-                                    </Badge>
+    const UserDashboard = () => {
+        const [showPauseModal, setShowPauseModal] = useState(false)
+        const [pauseStartDate, setPauseStartDate] = useState("")
+        const [pauseEndDate, setPauseEndDate] = useState("")
+        const { dataUser, dataUserLoading } = useGetDataUser()
+
+        if (dataUserLoading) {
+            return <p>Loading...</p>
+        }
+
+
+        const formatPrice = (price) => {
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            }).format(price)
+        }
+
+        const handlePauseSubscription = () => {
+            // Logic for pausing subscription
+            console.log("Pausing subscription from", pauseStartDate, "to", pauseEndDate)
+            setShowPauseModal(false)
+            setPauseStartDate("")
+            setPauseEndDate("")
+        }
+
+
+
+        return (
+            <div className="space-y-6">
+                {/* Welcome Section */}
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
+                    <h1 className="text-2xl font-bold mb-2">Welcome back, John!</h1>
+                    <p className="opacity-90">Manage your healthy meal subscriptions and view transaction history</p>
+                </div>
+
+                {/* Active Subscriptions Section */}
+                <Card className="border-0 shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Utensils className="h-5 w-5 text-emerald-600" />
+                            Active Subscriptions
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {dataUser.map((subscription) => (
+                            <div key={subscription.id} className="border border-slate-200 rounded-xl p-6 space-y-4">
+                                {/* Subscription Header */}
+                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-slate-800">{subscription.plan}</h3>
+                                        <p className="text-sm text-slate-600">Subscription ID: {subscription.id}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Badge
+                                            className={
+                                                subscription.status === "Active"
+                                                    ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+                                                    : subscription.status === "Paused"
+                                                        ? "bg-amber-100 text-amber-700 hover:bg-amber-100"
+                                                        : "bg-red-100 text-red-700 hover:bg-red-100"
+                                            }
+                                        >
+                                            {subscription.status === "Active" && <CheckCircle className="h-3 w-3 mr-1" />}
+                                            {subscription.status === "Paused" && <Pause className="h-3 w-3 mr-1" />}
+                                            {subscription.status === "Cancelled" && <X className="h-3 w-3 mr-1" />}
+                                            {subscription.status}
+                                        </Badge>
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <Label className="text-sm text-slate-600">Monthly Cost</Label>
-                                <p className="font-semibold text-lg text-emerald-600">{userSubscription.price}</p>
-                            </div>
-                        </div>
-                        <div className="space-y-3">
-                            <div>
-                                <Label className="text-sm text-slate-600">Next Delivery</Label>
-                                <p className="font-semibold">{userSubscription.nextDelivery}</p>
-                            </div>
-                            <div>
-                                <Label className="text-sm text-slate-600">Meals per Week</Label>
-                                <p className="font-semibold">{userSubscription.mealsPerWeek} meals</p>
-                            </div>
-                            <div>
-                                <Label className="text-sm text-slate-600">Member Since</Label>
-                                <p className="font-semibold">{userSubscription.startDate}</p>
-                            </div>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <CardContent className="p-6 text-center">
-                        <div className="bg-blue-100 p-3 rounded-full w-12 h-12 mx-auto mb-4">
-                            <Pause className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <h3 className="font-semibold mb-2">Pause Subscription</h3>
-                        <p className="text-sm text-slate-600 mb-4">Temporarily pause your deliveries</p>
-                        <Button variant="outline" className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 bg-transparent">
-                            Pause
-                        </Button>
-                    </CardContent>
-                </Card>
+                                {/* Subscription Details Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="space-y-1">
+                                        <Label className="text-sm text-slate-600">Meal Types</Label>
+                                        <div className="flex flex-wrap gap-1">
+                                            {subscription.mealTypes.map((meal, index) => (
+                                                <Badge key={index} variant="secondary" className="text-xs">
+                                                    {meal}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <CardContent className="p-6 text-center">
-                        <div className="bg-amber-100 p-3 rounded-full w-12 h-12 mx-auto mb-4">
-                            <Settings className="h-6 w-6 text-amber-600" />
-                        </div>
-                        <h3 className="font-semibold mb-2">Modify Plan</h3>
-                        <p className="text-sm text-slate-600 mb-4">Change your meal preferences</p>
-                        <Button
-                            variant="outline"
-                            className="w-full border-amber-200 text-amber-600 hover:bg-amber-50 bg-transparent"
-                        >
-                            Modify
-                        </Button>
-                    </CardContent>
-                </Card>
+                                    <div className="space-y-1">
+                                        <Label className="text-sm text-slate-600">Delivery Days</Label>
+                                        <div className="flex flex-wrap gap-1">
+                                            {subscription.deliveryDays.map((day, index) => (
+                                                <Badge key={index} variant="secondary" className="text-xs">
+                                                    {day}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
 
-                <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <CardContent className="p-6 text-center">
-                        <div className="bg-red-100 p-3 rounded-full w-12 h-12 mx-auto mb-4">
-                            <X className="h-6 w-6 text-red-600" />
-                        </div>
-                        <h3 className="font-semibold mb-2">Cancel Subscription</h3>
-                        <p className="text-sm text-slate-600 mb-4">End your subscription</p>
-                        <Button variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50 bg-transparent">
-                            Cancel
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-sm text-slate-600">Total Price</Label>
+                                        <p className="font-bold text-lg text-emerald-600">{formatPrice(subscription.price)}</p>
+                                    </div>
 
-            {/* Recent Orders */}
-            <Card className="border-0 shadow-lg">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-emerald-600" />
-                        Recent Deliveries
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-3">
-                        {[
-                            { date: "2024-01-10", status: "Delivered", meals: 7 },
-                            { date: "2024-01-03", status: "Delivered", meals: 7 },
-                            { date: "2023-12-27", status: "Delivered", meals: 7 },
-                        ].map((order, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                                <div>
-                                    <p className="font-medium">{order.date}</p>
-                                    <p className="text-sm text-slate-600">{order.meals} meals delivered</p>
+                                    <div className="space-y-1">
+                                        <Label className="text-sm text-slate-600">Meals per Week</Label>
+                                        <p className="font-semibold">{subscription.deliveryDays.length} meals</p>
+                                    </div>
                                 </div>
-                                <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">{order.status}</Badge>
+
+                                {/* Additional Info */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+                                    <div>
+                                        <Label className="text-sm text-slate-600">Start Date</Label>
+                                        <p className="font-medium">{subscription.createdAt.split('T')[0]}</p>
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm text-slate-600">Next Delivery</Label>
+                                        <p className="font-medium">NEXT DELIVERY</p>
+                                    </div>
+                                    {subscription.pausedUntil && (
+                                        <div>
+                                            <Label className="text-sm text-slate-600">Paused Until</Label>
+                                            <p className="font-medium text-amber-600">{subscription.pausedUntil}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Action Buttons */}
+                                <div className="flex flex-wrap gap-3 pt-4">
+                                    {subscription.status === "Active" && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setShowPauseModal(true)}
+                                            className="border-amber-200 text-amber-600 hover:bg-amber-50 bg-transparent"
+                                        >
+                                            <Pause className="h-4 w-4 mr-2" />
+                                            Pause Subscription
+                                        </Button>
+                                    )}
+                                    {subscription.status === "Paused" && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 bg-transparent"
+                                        >
+                                            <Play className="h-4 w-4 mr-2" />
+                                            Resume Subscription
+                                        </Button>
+                                    )}
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => useDeleteSubscription(subscription.id)}
+                                        className="border-red-200 text-red-600 hover:bg-red-50 bg-transparent"
+                                    >
+                                        <X className="h-4 w-4 mr-2" />
+                                        Cancel Subscription
+                                    </Button>
+                                </div>
                             </div>
                         ))}
+                    </CardContent>
+                </Card>
+
+
+                {/* Pause Subscription Modal */}
+                {showPauseModal && (
+                    <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <Card className="w-full max-w-md">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Pause className="h-5 w-5 text-amber-600" />
+                                    Pause Subscription
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <p className="text-slate-600">
+                                    Select the date range for pausing your subscription. No charges will be applied during this period.
+                                </p>
+
+                                <div className="space-y-3">
+                                    <div>
+                                        <Label htmlFor="pauseStart">Pause Start Date</Label>
+                                        <Input
+                                            id="pauseStart"
+                                            type="date"
+                                            value={pauseStartDate}
+                                            onChange={(e) => setPauseStartDate(e.target.value)}
+                                            className="mt-1"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <Label htmlFor="pauseEnd">Pause End Date</Label>
+                                        <Input
+                                            id="pauseEnd"
+                                            type="date"
+                                            value={pauseEndDate}
+                                            onChange={(e) => setPauseEndDate(e.target.value)}
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="bg-amber-50 p-3 rounded-lg">
+                                    <p className="text-sm text-amber-800">
+                                        <AlertCircle className="h-4 w-4 inline mr-1" />
+                                        Your subscription will be automatically resumed after the selected end date.
+                                    </p>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <Button variant="outline" onClick={() => setShowPauseModal(false)} className="flex-1">
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        onClick={handlePauseSubscription}
+                                        className="flex-1 bg-amber-600 hover:bg-amber-700"
+                                        disabled={!pauseStartDate || !pauseEndDate}
+                                    >
+                                        Confirm Pause
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
-                </CardContent>
-            </Card>
-        </div>
-    )
+                )}
+
+            </div>
+        )
+    }
 
     const AdminDashboard = () => (
         <div className="space-y-6">
@@ -213,7 +314,7 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-600">New Subscriptions</p>
-                                <p className="text-2xl font-bold text-slate-800">{adminMetrics.newSubscriptions}</p>
+                                <p className="text-2xl font-bold text-slate-800">{newSubscription.name}</p>
                             </div>
                             <div className="bg-emerald-100 p-3 rounded-full">
                                 <Users className="h-6 w-6 text-emerald-600" />
@@ -228,8 +329,7 @@ export default function DashboardPage() {
                             <div>
                                 <p className="text-sm text-slate-600">Monthly Revenue</p>
                                 <p className="text-2xl font-bold text-slate-800">
-                                    {loadingData && <p>Loading...</p>}
-                                    {!loadingData && `Rp ${useFormatPrice(totalRevenue)}`}
+                                    {`Rp ${useFormatPrice(totalRevenue)}`}
                                 </p>
                             </div>
                             <div className="bg-blue-100 p-3 rounded-full">
@@ -259,8 +359,7 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-600">Total Subscribers</p>
-                                {loadingData && <p className="text-2xl font-bold text-slate-800">Loading...</p>}
-                                {!loadingData && <p className="text-2xl font-bold text-slate-800">{subscriptionLength}</p>}
+                                <p className="text-2xl font-bold text-slate-800">{dataLength}</p>
                             </div>
                             <div className="bg-purple-100 p-3 rounded-full">
                                 <TrendingUp className="h-6 w-6 text-purple-600" />
@@ -340,7 +439,7 @@ export default function DashboardPage() {
                 <CardContent>
                     <div className="space-y-4">
                         {[
-                            { action: "New subscription", user: "Sarah Johnson", time: "2 minutes ago", type: "success" },
+                            { action: "New subscription", user: newSubscription.name, time: "2 minutes ago", type: "success" },
                             { action: "Subscription paused", user: "Mike Chen", time: "15 minutes ago", type: "warning" },
                             { action: "Plan upgraded", user: "Anna Smith", time: "1 hour ago", type: "info" },
                             { action: "Subscription cancelled", user: "David Wilson", time: "2 hours ago", type: "error" },

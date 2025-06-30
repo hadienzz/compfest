@@ -57,8 +57,7 @@ export const useSignIn = () => {
                 console.log(error)
                 return
             }
-
-            localStorage.setItem('token', data.session.access_token)
+            const token = localStorage.setItem('token', data.session.access_token)
 
             navigate('/')
             return data

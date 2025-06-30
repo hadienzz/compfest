@@ -16,7 +16,7 @@ export function Navigation() {
         { href: "/menu", label: "Menu / Meal Plans" },
         { href: "/subscription", label: "Subscription" },
         { href: "/contact", label: "Contact Us" },
-
+        {href: '/dashboard', label: 'Dashboard'}
     ]
 
     return (

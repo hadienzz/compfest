@@ -1,5 +1,6 @@
+import { supabase } from "@/config/supabaseClient"
 import { useMutation } from "@tanstack/react-query"
-import axios from "axios"
+import useDecodeToken from "./useDecodeToken"
 
 const useAddSubscription = () => {
     const token = localStorage.getItem('token')
@@ -7,8 +8,10 @@ const useAddSubscription = () => {
     const { mutate } = useMutation({
         mutationFn: async (body) => {
             const { name, phone, price, mealTypes, deliveryDays, allergies, plan } = body.submissionData
+            const userId = useDecodeToken(token)
 
             const subscriptionData = {
+                userId,
                 name,
                 phone,
                 price: Number(price),
@@ -17,18 +20,19 @@ const useAddSubscription = () => {
                 allergies,
                 plan
             }
-            console.log(subscriptionData)
 
-            const result = await axios.post('http://localhost:3000/subscription', subscriptionData, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            return result.data
+            const { data, error } = await supabase.from('subscription').insert([subscriptionData])
+
+            if (error) {
+                console.log(error)
+                return
+            }
+
+            return data
         },
         mutationKey: ['subscription']
-
     })
+
 
     return {
         mutate
