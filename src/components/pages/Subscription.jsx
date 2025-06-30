@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Calculator, Check, Phone, Mail, MapPin, AlertCircle } from "lucide-react"
 import useAddSubscription from "@/lib/useAddSubscription"
+import { useNavigate } from "react-router-dom"
 
 const planOptions = [
     {
@@ -49,6 +50,9 @@ const deliveryDayOptions = [
 ]
 
 export default function SubscriptionPage() {
+    const navigate = useNavigate()
+    const token = localStorage.getItem('token')
+
     const [formData, setFormData] = useState({
         name: "",
         phone: "",
@@ -146,7 +150,8 @@ export default function SubscriptionPage() {
             const selectedPlan = planOptions.find((plan) => plan.id === formData.plan)
             const submissionData = {
                 ...formData,
-                name: selectedPlan?.name,
+                name: formData?.name,
+                plan: selectedPlan?.name,
                 planPrice: selectedPlan?.price,
                 price: totalPrice,
                 mealTypesCount: formData.mealTypes.length,
@@ -155,10 +160,14 @@ export default function SubscriptionPage() {
 
             mutate({ submissionData })
 
-
-            alert(
-                `Subscription successful! Total: ${formatPrice(totalPrice)}\n\nWe will contact you at ${formData.phone} for payment confirmation.`,
-            )
+            if (token) {
+                alert(
+                    `Subscription successful! Total: ${formatPrice(totalPrice)}\n\nWe will contact you at ${formData.phone} for payment confirmation.`,
+                )
+            } else {
+                alert('Sign in to continue subscribe')
+                navigate('/signin')
+            }
 
             // Reset form
             setFormData({

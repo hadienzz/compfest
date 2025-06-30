@@ -6,16 +6,18 @@ const useAddSubscription = () => {
 
     const { mutate } = useMutation({
         mutationFn: async (body) => {
-            const { name, phone, price, mealTypes, deliveryDays, allergies } = body.submissionData
+            const { name, phone, price, mealTypes, deliveryDays, allergies, plan } = body.submissionData
 
             const subscriptionData = {
                 name,
                 phone,
-                price,
+                price: Number(price),
                 mealTypes,
                 deliveryDays,
-                allergies
+                allergies,
+                plan
             }
+            console.log(subscriptionData)
 
             const result = await axios.post('http://localhost:3000/subscription', subscriptionData, {
                 headers: {

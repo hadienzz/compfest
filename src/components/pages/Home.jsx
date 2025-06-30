@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Utensils, Truck, Heart, MapPin, Phone, User, Clock, Shield, Star, Leaf } from "lucide-react"
 import { Navigation } from "@/components/custom/navigation"
 import { TestimonialsSection } from "@/components/custom/Testimonials"
+import { Link } from "react-router-dom"
 
 export default function Homepage() {
   return (
@@ -26,18 +27,22 @@ export default function Homepage() {
             delicious meals tailored to your preferences across all major cities in Indonesia.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8 py-3">
-              <Utensils className="mr-2 h-5 w-5" />
-              Order Now
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-green-600 text-green-600 hover:bg-green-50 px-8 py-3 bg-transparent"
-            >
-              <Phone className="mr-2 h-5 w-5" />
-              Contact Us
-            </Button>
+            <Link to={'/subscription'}>
+              <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8 py-3">
+                <Utensils className="mr-2 h-5 w-5" />
+                Order Now
+              </Button>
+            </Link>
+            <Link to={'/contact'}>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-green-600 text-green-600 hover:bg-green-50 px-8 py-3 bg-transparent"
+              >
+                <Phone className="mr-2 h-5 w-5" />
+                Contact Us
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

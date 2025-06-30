@@ -2,17 +2,21 @@ import { useState } from "react"
 import { Button } from "../ui/button"
 import { Utensils, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
+import { useLogOut } from "@/lib/useAuthentication"
 
 export function Navigation() {
     const [isOpen, setIsOpen] = useState(false)
     const pathname = window.location.pathname
+    const { handleLogout } = useLogOut()
+    const token = localStorage.getItem('token')
 
     const navItems = [
         { href: "/", label: "Home" },
         { href: "/menu", label: "Menu / Meal Plans" },
         { href: "/subscription", label: "Subscription" },
         { href: "/contact", label: "Contact Us" },
+
     ]
 
     return (
@@ -31,19 +35,25 @@ export function Navigation() {
                     </a>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden md:flex space-x-8">
+                    <nav className="hidden md:flex space-x-8 items-center">
                         {navItems.map((item) => (
-                            <a
+                            <Link
                                 key={item.href}
-                                href={item.href}
+                                to={item.href}
                                 className={cn(
                                     "text-gray-700 hover:text-green-600 transition-colors font-medium",
                                     pathname === item.href && "text-green-600 border-b-2 border-green-600 pb-1",
                                 )}
                             >
                                 {item.label}
-                            </a>
+                            </Link>
                         ))}
+                        <Button
+                            className={'bg-green-600 text-white'}
+                            onClick={handleLogout}
+                        >
+                            {token ? 'Sign Out' : 'Sign In'}
+                        </Button>
                     </nav>
 
                     {/* Mobile Menu Button */}

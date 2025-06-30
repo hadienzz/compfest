@@ -6,6 +6,7 @@ import SubscriptionPage from "./components/pages/Subscription"
 import ContactPage from "./components/pages/Contact"
 import SignUpPage from "./components/pages/SignUp"
 import SignInPage from "./components/pages/SignIn"
+import DashboardPage from "./components/pages/Dashboard"
 
 const App = () => {
   const router = createBrowserRouter([
@@ -14,7 +15,8 @@ const App = () => {
     { path: '/subscription', element: <SubscriptionPage /> },
     { path: '/contact', element: <ContactPage /> },
     { path: '/signup', element: <SignUpPage /> },
-    { path: '/signin', element: <SignInPage /> }
+    { path: '/signin', element: <SignInPage /> },
+    {path: '/dashboard', element: <DashboardPage />}
   ])
 
   return (
