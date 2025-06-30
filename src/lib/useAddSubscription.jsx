@@ -1,9 +1,16 @@
 import { supabase } from "@/config/supabaseClient"
 import { useMutation } from "@tanstack/react-query"
 import useDecodeToken from "./useDecodeToken"
+import { useNavigate } from "react-router-dom"
 
 const useAddSubscription = () => {
+    const navigate = useNavigate()
     const token = localStorage.getItem('token')
+
+    if (!token) {
+        navigate('/signin')
+        return
+    }
 
     const { mutate } = useMutation({
         mutationFn: async (body) => {

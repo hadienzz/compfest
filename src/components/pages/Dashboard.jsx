@@ -25,7 +25,7 @@ import {
 import useGetSubscriptionData from "@/lib/useGetSubscriptionData"
 import useFormatPrice from "@/lib/useFormatPrice"
 import useGetDataUser from "@/lib/useGetDataUser"
-import useDeleteSubscription from "@/lib/useDeleteSubscription"
+import useCancelSubscription from "@/lib/useCancelSubscription"
 import { useNavigate } from "react-router-dom"
 import { Input } from "../ui/input"
 
@@ -34,7 +34,8 @@ export default function DashboardPage() {
     const navigate = useNavigate()
     const [userType, setUserType] = useState("user")
     const [dateRange, setDateRange] = useState("30")
-    const { totalRevenue, dataLength, newSubscription } = useGetSubscriptionData()
+    const { totalRevenue, dataLength, newSubscription, cancelledSubs } = useGetSubscriptionData()
+    const { handleStatus } = useCancelSubscription()
 
     const adminMetrics = {
         newSubscriptions: 45,
@@ -201,7 +202,7 @@ export default function DashboardPage() {
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => useDeleteSubscription(subscription.id)}
+                                        onClick={() => handleStatus(subscription.id)}
                                         className="border-red-200 text-red-600 hover:bg-red-50 bg-transparent"
                                     >
                                         <X className="h-4 w-4 mr-2" />
@@ -442,7 +443,7 @@ export default function DashboardPage() {
                             { action: "New subscription", user: newSubscription.name, time: "2 minutes ago", type: "success" },
                             { action: "Subscription paused", user: "Mike Chen", time: "15 minutes ago", type: "warning" },
                             { action: "Plan upgraded", user: "Anna Smith", time: "1 hour ago", type: "info" },
-                            { action: "Subscription cancelled", user: "David Wilson", time: "2 hours ago", type: "error" },
+                            { action: "Subscription cancelled", user: cancelledSubs.name, time: "2 hours ago", type: "error" },
                         ].map((activity, index) => (
                             <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
                                 <div

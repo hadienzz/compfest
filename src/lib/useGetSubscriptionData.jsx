@@ -5,18 +5,22 @@ const useGetSubscriptionData = () => {
     const [dataLength, setDataLength] = useState(0);
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [newSubscription, setNewSubscription] = useState([])
+    const [cancelledSubs, setCancelledSubs] = useState([])
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const { data, error } = await supabase.from('subscription').select('*');
-
+                const lastCancelled = data.filter((item) => item.status === 'Cancelled')
+                const activeSubs = data.filter((item) => item.status === 'Active')
                 if (error) {
                     throw error;
                 }
 
-                setDataLength(data.length); // Set dataLength ke state
-                setTotalRevenue(data.reduce((acc, cur) => acc + cur.price, 0));
+                setDataLength(data.length);
+                setTotalRevenue(activeSubs.reduce((acc, cur) => acc + cur.price, 0));
                 setNewSubscription(data.at(-1))
+                setCancelledSubs(lastCancelled.at(-1))
             } catch (err) {
                 console.error('Error fetching subscription data:', err);
             }
@@ -28,7 +32,8 @@ const useGetSubscriptionData = () => {
     return {
         dataLength,
         totalRevenue,
-        newSubscription
+        newSubscription,
+        cancelledSubs
     };
 };
 
