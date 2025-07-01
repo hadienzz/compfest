@@ -5,8 +5,7 @@ const usePauseSubs = () => {
     const queryClient = useQueryClient()
 
     const { mutate, isPending } = useMutation({
-        mutationFn: async (body) => {
-            const { date, id } = body
+        mutationFn: async ({ id, date }) => {
             const { data, error } = await supabase
                 .from('subscription')
                 .update({ status: 'Paused', pausedAt: date })
@@ -22,10 +21,9 @@ const usePauseSubs = () => {
         }
     })
 
-
     return {
         mutate,
-        isPending,
+        isPending
     }
 }
 
