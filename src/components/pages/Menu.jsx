@@ -49,19 +49,12 @@ export default function MenuPage() {
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {MEAL_PLANS.map((plan) => (
                             <Card key={plan.id} className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                                <div className="relative">
-                                    <img
-                                        src={plan.image || "/placeholder.svg"}
-                                        alt={plan.name}
-                                        width={400}
-                                        height={250}
-                                        className="w-full h-48 object-cover rounded-t-lg"
-                                    />
-                                    <Badge className="absolute top-4 right-4 bg-green-600 text-white">{plan.price}</Badge>
-                                </div>
 
                                 <CardContent className="p-6">
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-3">{plan.name}</h3>
+                                    <div className="flex items-center justify-between">
+                                        <Badge className="top-4 right-4 bg-green-600 text-white">{plan.price}</Badge>
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-3">{plan.name}</h3>
+                                    </div>
                                     <p className="text-gray-600 mb-4 line-clamp-3">{plan.description}</p>
 
                                     {/* Quick Stats */}

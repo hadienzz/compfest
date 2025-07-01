@@ -7,6 +7,7 @@ import ContactPage from "./components/pages/Contact"
 import SignUpPage from "./components/pages/SignUp"
 import SignInPage from "./components/pages/SignIn"
 import DashboardPage from "./components/pages/Dashboard"
+import AdminDashboard from "./components/pages/AdminDashboard"
 
 const App = () => {
   const router = createBrowserRouter([
@@ -17,7 +18,7 @@ const App = () => {
     { path: '/signup', element: <SignUpPage /> },
     { path: '/signin', element: <SignInPage /> },
     { path: '/dashboard', element: <DashboardPage /> },
-    
+
   ])
 
   return (

@@ -1,39 +1,33 @@
 import { supabase } from "@/config/supabaseClient";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 const useGetSubscriptionData = () => {
-    const [dataLength, setDataLength] = useState(0);
-    const [totalRevenue, setTotalRevenue] = useState(0);
-    const [newSubscription, setNewSubscription] = useState([])
-    const [cancelledSubs, setCancelledSubs] = useState([])
+    const { data = [], isLoading, error } = useQuery({
+        queryKey: ['subscription'],
+        queryFn: async () => {
+            const { data, error } = await supabase.from('subscription').select('*');
+            if (error) throw error;
+            return data;
+        }
+    });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const { data, error } = await supabase.from('subscription').select('*');
-                const lastCancelled = data.filter((item) => item.status === 'Cancelled')
-                const activeSubs = data.filter((item) => item.status === 'Active')
-                if (error) {
-                    throw error;
-                }
+    const dataLength = data.length;
 
-                setDataLength(data.length);
-                setTotalRevenue(activeSubs.reduce((acc, cur) => acc + cur.price, 0));
-                setNewSubscription(data.at(-1))
-                setCancelledSubs(lastCancelled.at(-1))
-            } catch (err) {
-                console.error('Error fetching subscription data:', err);
-            }
-        };
+    const activeSubs = data.filter((item) => item.status === 'Active');
+    const totalRevenue = activeSubs.reduce((acc, cur) => acc + cur.price, 0);
 
-        fetchData();
-    }, []);
-
+    const lastCancelled = data.filter((item) => item.status === 'Cancelled').at(-1);
+    const newSubscription = data.at(-1);
+    const lastPause = data.filter((item) => item.status === 'Paused').at(-1)
     return {
         dataLength,
         totalRevenue,
         newSubscription,
-        cancelledSubs
+        cancelledSubs: lastCancelled,
+        allData: data,
+        loadingAdmin: isLoading,
+        lastPause,
+        error,
     };
 };
 

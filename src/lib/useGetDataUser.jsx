@@ -1,32 +1,28 @@
 import { supabase } from "@/config/supabaseClient"
 import useDecodeToken from "./useDecodeToken"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 
 const useGetDataUser = () => {
-    const [dataUser, setDataUser] = useState([])
-    const [dataUserLoading, setDataUserLoading] = useState(false)
     const token = localStorage.getItem('token')
     const decodeToken = useDecodeToken(token)
 
-    useEffect(() => {
-        const handleGetDataUser = async () => {
-            setDataUserLoading(true)
+    const { data, isLoading } = useQuery({
+        queryFn: async () => {
             const { data, error } = await supabase.from('subscription').select('*').eq('userId', decodeToken)
             if (error) {
                 console.error(error)
                 return
             }
+            return data
+        },
+        queryKey: ['subscription']
+    })
 
-            setDataUser(data)
-            setDataUserLoading(false)
-        }
-        handleGetDataUser()
-        console.log(dataUser)
-    }, [])
 
     return {
-        dataUser,
-        dataUserLoading
+        dataUser: data,
+        dataUserLoading: isLoading
     }
 }
 

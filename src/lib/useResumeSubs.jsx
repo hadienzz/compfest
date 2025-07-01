@@ -1,21 +1,17 @@
 import { supabase } from "@/config/supabaseClient"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-const useCancelSubscription = () => {
+const useResumeSubs = () => {
     const queryClient = useQueryClient()
-
-
-    const { mutate: cancelSubs, isPending } = useMutation({
+    const { mutate } = useMutation({
         mutationFn: async (id) => {
-            const { data, error } = await supabase.from('subscription').update({ status: 'Cancelled' }).eq('id', id)
-
+            console.log(id)
+            const { data, error } = await supabase.from('subscription').update({ status: 'Active', pausedAt: null }).eq('id', id)
             if (error) {
-                console.error(error)
+                consple.log(error)
                 return
             }
-
             return data
-
         },
         mutationKey: ['subscription'],
         onSuccess: () => {
@@ -23,12 +19,10 @@ const useCancelSubscription = () => {
         }
     })
 
-
-
     return {
-        cancelSubs,
-        isPending
+        mutate
     }
+
 }
 
-export default useCancelSubscription
+export default useResumeSubs

@@ -47,22 +47,6 @@ export default function Homepage() {
         </div>
       </section>
 
-      {/* Hero Image */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto">
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-            <img
-              src="/placeholder.svg?height=400&width=800"
-              alt="Healthy meals from SEA Catering"
-              width={800}
-              height={400}
-              className="w-full h-[400px] object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-green-900/20 to-transparent"></div>
-          </div>
-        </div>
-      </section>
-
       {/* Features Section */}
       <section id="features" className="py-20 px-4 bg-white">
         <div className="container mx-auto">
