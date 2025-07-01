@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Utensils, Truck, Heart, MapPin, Phone, User, Clock, Shield, Star, Leaf } from "lucide-react"
-import { Navigation } from "@/components/custom/navigation"
+import { Navigation } from "@/components/custom/Navigation"
 import { TestimonialsSection } from "@/components/custom/Testimonials"
 import { Link } from "react-router-dom"
 

@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Navigation } from "@/components/custom/navigation"
+import { Navigation } from "@/components/custom/Navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"

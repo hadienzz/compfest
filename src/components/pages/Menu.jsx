@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Navigation } from "@/components/custom/navigation"
+import { Navigation } from "@/components/custom/Navigation"
 import { MealPlanModal } from "@/components/custom/MealPlanModal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
