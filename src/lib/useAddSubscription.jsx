@@ -9,7 +9,6 @@ const useAddSubscription = () => {
 
     if (!token) {
         navigate('/signin')
-        return
     }
 
     const { mutate } = useMutation({
