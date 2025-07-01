@@ -13,10 +13,10 @@ export function Navigation() {
 
     const navItems = [
         { href: "/", label: "Home" },
-        { href: "/menu", label: "Menu / Meal Plans" },
+        { href: "/menu", label: "Menu" },
         { href: "/subscription", label: "Subscription" },
         { href: "/contact", label: "Contact Us" },
-        {href: '/dashboard', label: 'Dashboard'}
+        { href: '/dashboard', label: 'Dashboard' }
     ]
 
     return (
@@ -67,18 +67,27 @@ export function Navigation() {
                     <nav className="md:hidden mt-4 pb-4 border-t pt-4">
                         <div className="flex flex-col space-y-4">
                             {navItems.map((item) => (
-                                <a
-                                    key={item.href}
-                                    href={item.href}
-                                    className={cn(
-                                        "text-gray-700 hover:text-green-600 transition-colors font-medium px-2 py-1 rounded",
-                                        pathname === item.href && "text-green-600 bg-green-50",
-                                    )}
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    {item.label}
-                                </a>
+                                <>
+                                    <a
+                                        key={item.href}
+                                        href={item.href}
+                                        className={cn(
+                                            "text-gray-700 hover:text-green-600 transition-colors font-medium px-2 py-1 rounded",
+                                            pathname === item.href && "text-green-600 bg-green-50",
+                                        )}
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        {item.label}
+                                    </a>
+
+                                </>
                             ))}
+                            <Button
+                                className={'bg-green-600 text-white'}
+                                onClick={handleLogout}
+                            >
+                                {token ? 'Sign Out' : 'Sign In'}
+                            </Button>
                         </div>
                     </nav>
                 )}
